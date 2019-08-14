@@ -23,7 +23,17 @@ impl Polynomial {
         }
     }
 
-    pub fn add() {}
+    pub fn add(&self, other: Polynomial) -> Polynomial {
+        let new_coefficients: Vec<f64> = self
+            .coefficients
+            .iter()
+            .zip(other.coefficients)
+            .map(|pair| pair.0 + pair.1)
+            .collect();
+
+        Polynomial::new(new_coefficients, 'x')
+    }
+
     pub fn sub() {}
     pub fn multiply() {}
     pub fn evaluate_at() {}
@@ -73,6 +83,17 @@ mod tests {
     fn test_string_representation() {
         let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
         assert_eq!(polynomial.as_string(), String::from("f(x) = 1 + 2x + 3x^2"))
+    }
+
+    #[test]
+    fn test_add_two_polynomials() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+
+        assert_eq!(
+            a_polynomial.add(b_polynomial).coefficients,
+            vec![2f64, 4f64, 6f64]
+        )
     }
 
 }
