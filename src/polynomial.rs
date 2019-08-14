@@ -23,17 +23,35 @@ impl Polynomial {
         }
     }
 
-    pub fn indeterminate(&mut self, c: char) -> &mut Polynomial {
-        self.indeterminate = c;
-        self
-    }
-
     pub fn add() {}
     pub fn sub() {}
     pub fn multiply() {}
     pub fn evaluate_at() {}
-    pub fn as_string() {}
-    pub fn degree() {}
+
+    /// Return the polynomial represented as a String
+    /// eg. f(x) = 1 + 2x + 3x^2
+    pub fn as_string(&self) -> String {
+        let mut terms = String::new();
+        for (degree, coeff) in self.coefficients.iter().enumerate() {
+            if degree == 0 {
+                terms = format!("{}", coeff);
+                continue;
+            }
+
+            if degree == 1 {
+                terms = format!("{} + {}{}", terms, coeff, self.indeterminate);
+                continue;
+            }
+
+            terms = format!("{} + {}{}^{}", terms, coeff, self.indeterminate, degree);
+        }
+
+        format!("f({}) = {}", self.indeterminate, terms)
+    }
+
+    pub fn degree(&self) -> usize {
+        self.coefficients.len() - 1
+    }
 }
 
 #[cfg(test)]
@@ -43,6 +61,18 @@ mod tests {
     fn test_strip_zeros() {
         let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64, 0f64], 'x');
         assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 3f64]);
+    }
+
+    #[test]
+    fn test_degree() {
+        let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+        assert_eq!(polynomial.degree(), 2)
+    }
+
+    #[test]
+    fn test_string_representation() {
+        let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+        assert_eq!(polynomial.as_string(), String::from("f(x) = 1 + 2x + 3x^2"))
     }
 
 }
