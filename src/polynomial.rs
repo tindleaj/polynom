@@ -72,7 +72,14 @@ impl Polynomial {
         Polynomial::new(new_coefficients, 'x')
     }
 
-    pub fn evaluate_at() {}
+    pub fn evaluate_at(&self, determinate: f64) -> f64 {
+        let mut sum = 0f64;
+        for (degree, coeff) in self.coefficients.iter().enumerate() {
+            sum += determinate.powi(degree as i32) * coeff;
+        }
+
+        sum
+    }
 
     /// Return the polynomial represented as a String
     /// # Example
@@ -194,6 +201,27 @@ mod tests {
             a_polynomial.multiply(b_polynomial).coefficients,
             vec![-3f64, -8f64, -14f64, -8f64, -3f64]
         )
+    }
+
+    #[test]
+    fn test_evaluate_at_zero() {
+        let polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+
+        assert_eq!(polynomial.evaluate_at(0f64), 1f64)
+    }
+
+    #[test]
+    fn test_evaluate_at_five() {
+        let polynomial = Polynomial::new(vec![1f64, 2f64, 3f64, 4f64], 'x');
+
+        assert_eq!(polynomial.evaluate_at(5f64), 586.0)
+    }
+
+    #[test]
+    fn test_evaluate_at_negative() {
+        let polynomial = Polynomial::new(vec![-1f64, 2f64, -3f64, 4f64], 'x');
+
+        assert_eq!(polynomial.evaluate_at(-5f64), -586.0)
     }
 
 }
