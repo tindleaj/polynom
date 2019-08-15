@@ -55,9 +55,23 @@ impl Polynomial {
         Polynomial::new(new_coefficients, 'x')
     }
 
-    pub fn sub() {}
+    pub fn sub() {
+        unimplemented!()
+    }
 
-    pub fn multiply() {}
+    pub fn multiply(&self, other: Polynomial) -> Polynomial {
+        let mut new_coefficients: Vec<f64> =
+            vec![0f64; self.coefficients.len() * other.coefficients.len()];
+
+        for (i, self_coeff) in self.coefficients.iter().enumerate() {
+            for (j, other_coeff) in other.coefficients.iter().enumerate() {
+                new_coefficients[i + j] += self_coeff * other_coeff;
+            }
+        }
+
+        Polynomial::new(new_coefficients, 'x')
+    }
+
     pub fn evaluate_at() {}
 
     /// Return the polynomial represented as a String
@@ -133,7 +147,7 @@ mod tests {
     #[test]
     fn test_add() {
         let a_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
-        let b_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64, 4f64], 'x');
 
         assert_eq!(
             a_polynomial.add(b_polynomial).coefficients,
@@ -145,9 +159,41 @@ mod tests {
     fn test_add_negative_coefficients() {
         let a_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
         let b_polynomial = Polynomial::new(vec![-1f64, -2f64, 0f64, -3f64], 'x');
-        println!("{:?}", b_polynomial);
 
         assert_eq!(a_polynomial.add(b_polynomial).coefficients, vec![0f64])
+    }
+
+    #[test]
+    fn test_multiply_simple() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![1f64], 'x');
+
+        assert_eq!(
+            a_polynomial.multiply(b_polynomial).coefficients,
+            vec![1f64, 2f64, 3f64]
+        );
+    }
+
+    #[test]
+    fn test_multiply() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![3f64, 2f64, 1f64], 'x');
+
+        assert_eq!(
+            a_polynomial.multiply(b_polynomial).coefficients,
+            vec![3f64, 8f64, 14f64, 8f64, 3f64]
+        )
+    }
+
+    #[test]
+    fn test_multiply_negative() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![-3f64, -2f64, -1f64], 'x');
+
+        assert_eq!(
+            a_polynomial.multiply(b_polynomial).coefficients,
+            vec![-3f64, -8f64, -14f64, -8f64, -3f64]
+        )
     }
 
 }
