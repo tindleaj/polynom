@@ -9,7 +9,7 @@ fn strip_zeros(coefficients: Vec<f64>) -> Vec<f64> {
     result
 }
 
-struct Polynomial {
+pub struct Polynomial {
     coefficients: Vec<f64>,
     indeterminate: char,
 }
@@ -39,7 +39,13 @@ impl Polynomial {
     pub fn evaluate_at() {}
 
     /// Return the polynomial represented as a String
-    /// eg. f(x) = 1 + 2x + 3x^2
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+    /// assert_eq!(polynomial.as_string(), String::from("f(x) = 1 + 2x + 3x^2"))
+    /// ```
     pub fn as_string(&self) -> String {
         let mut terms = String::new();
         for (degree, coeff) in self.coefficients.iter().enumerate() {

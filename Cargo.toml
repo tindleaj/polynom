@@ -1,5 +1,5 @@
 [package]
-name = "secret_sharing"
+name = "polynom"
 version = "0.1.0"
 authors = ["Austin Tindle <tindleaj@gmail.com>"]
 edition = "2018"
