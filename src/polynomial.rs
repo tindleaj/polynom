@@ -16,8 +16,8 @@ fn strip_from_end<T: PartialEq + Clone + Default>(list: Vec<T>, object: T) -> Ve
 }
 
 pub struct Polynomial {
-    coefficients: Vec<f64>,
-    indeterminate: char,
+    pub coefficients: Vec<f64>,
+    pub indeterminate: char,
 }
 
 impl fmt::Debug for Polynomial {
@@ -33,8 +33,17 @@ impl fmt::Debug for Polynomial {
 }
 
 impl Polynomial {
+    /// Returns a Polynomial from a vector of floats and an indeterminate
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+    /// assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 3f64]);
+    /// ```
     pub fn new(coefficients: Vec<f64>, indeterminate: char) -> Polynomial {
         let stripped_coefficients = strip_from_end(coefficients, 0f64);
+        // Zero degree special case
         if stripped_coefficients.len() == 0 {
             return Polynomial {
                 coefficients: vec![0f64],
@@ -44,6 +53,32 @@ impl Polynomial {
 
         Polynomial {
             coefficients: stripped_coefficients,
+            indeterminate,
+        }
+    }
+
+    /// Returns a Polynomial from a vector of integers and an indeterminate
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let polynomial = Polynomial::from_ints(vec![1, 2, 3], 'x');
+    /// assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 3f64]);
+    /// ```
+    pub fn from_ints(coefficients: Vec<i64>, indeterminate: char) -> Polynomial {
+        let stripped_coefficients = strip_from_end(coefficients, 0i64);
+        // Zero degree special case
+        if stripped_coefficients.len() == 0 {
+            return Polynomial {
+                coefficients: vec![0f64],
+                indeterminate,
+            };
+        }
+
+        let float_coefficients = stripped_coefficients.iter().map(|&x| x as f64).collect();
+
+        Polynomial {
+            coefficients: float_coefficients,
             indeterminate,
         }
     }
@@ -284,6 +319,12 @@ mod tests {
             a_polynomial.sub(b_polynomial).coefficients,
             vec![-4f64, -4f64, -4f64]
         )
+    }
+    #[test]
+    fn test_new_polynomial_from_ints() {
+        let polynomial = Polynomial::from_ints(vec![1, 2, 3], 'x');
+
+        assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 3f64]);
     }
 
 }
