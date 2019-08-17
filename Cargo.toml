@@ -5,5 +5,9 @@ authors = ["Austin Tindle <tindleaj@gmail.com>"]
 edition = "2018"
 description = "A simple library for handling polynomials"
 license = "MIT OR Apache-2.0"
+readme="README.md"
+repository="https://github.com/tindleaj/polynom-rs"
+homepage="https://github.com/tindleaj/polynom-rs"
+keywords = ["math", "polynomial", "algebra"]
 
 [dependencies]
