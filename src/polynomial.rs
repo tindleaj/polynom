@@ -65,10 +65,7 @@ impl Polynomial {
             .map(|pair| pair.0 + pair.1)
             .collect();
 
-        Polynomial {
-            coefficients: new_coefficients,
-            indeterminate: 'x',
-        }
+        Polynomial::new(new_coefficients, 'x')
     }
 
     pub fn sub(&self, other: Polynomial) -> Polynomial {
@@ -125,7 +122,9 @@ impl Polynomial {
                 continue;
             }
 
-            if *coeff == 0f64 { continue; }
+            if *coeff == 0f64 {
+                continue;
+            }
 
             terms = format!("{} + {}{}^{}", terms, coeff, self.indeterminate, degree);
         }
@@ -191,7 +190,7 @@ mod tests {
 
         assert_eq!(
             a_polynomial.add(b_polynomial).coefficients,
-            vec![2f64, 4f64, 6f64, 4f64]
+            vec![2f64, 4f64, 0f64, 6f64, 4f64]
         )
     }
 
@@ -269,6 +268,17 @@ mod tests {
     fn test_double_negative_subtract() {
         let a_polynomial = Polynomial::new(vec![-1f64, -2f64, -3f64], 'x');
         let b_polynomial = Polynomial::new(vec![-3f64, -2f64, -1f64], 'x');
+
+        assert_eq!(
+            a_polynomial.sub(b_polynomial).coefficients,
+            vec![2f64, 0f64, -2f64]
+        )
+    }
+
+    #[test]
+    fn test_negative_subtract() {
+        let a_polynomial = Polynomial::new(vec![-1f64, -2f64, -3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![3f64, 2f64, 1f64], 'x');
 
         assert_eq!(
             a_polynomial.sub(b_polynomial).coefficients,
