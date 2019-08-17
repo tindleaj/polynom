@@ -1,14 +1,18 @@
 use std::fmt;
 
-fn strip_zeros(coefficients: Vec<f64>) -> Vec<f64> {
-    let mut result = Vec::new();
-    for coeff in coefficients {
-        if coeff != 0f64 {
-            result.push(coeff)
+fn strip_from_end<T: PartialEq + Clone + Default>(list: Vec<T>, object: T) -> Vec<T> {
+    let mut new_list = list.clone();
+    let mut strip_amount: usize = 0;
+    for item in list.iter().rev() {
+        if *item == object {
+            strip_amount += 1;
+        } else {
+            break;
         }
     }
-
-    result
+    let default: T = Default::default();
+    new_list.resize(list.len() - strip_amount, default);
+    new_list
 }
 
 pub struct Polynomial {
@@ -30,7 +34,7 @@ impl fmt::Debug for Polynomial {
 
 impl Polynomial {
     pub fn new(coefficients: Vec<f64>, indeterminate: char) -> Polynomial {
-        let stripped_coefficients = strip_zeros(coefficients);
+        let stripped_coefficients = strip_from_end(coefficients, 0f64);
         if stripped_coefficients.len() == 0 {
             return Polynomial {
                 coefficients: vec![0f64],
@@ -45,18 +49,37 @@ impl Polynomial {
     }
 
     pub fn add(&self, other: Polynomial) -> Polynomial {
-        let new_coefficients: Vec<f64> = self
-            .coefficients
+        let mut a_coefficients = self.coefficients.clone();
+        let mut b_coefficients = other.coefficients.clone();
+
+        // Resize coeff vectors to the longer size
+        if a_coefficients.len() < b_coefficients.len() {
+            a_coefficients.resize(b_coefficients.len(), 0f64)
+        } else {
+            b_coefficients.resize(a_coefficients.len(), 0f64)
+        }
+
+        let new_coefficients: Vec<f64> = a_coefficients
             .iter()
-            .zip(other.coefficients)
+            .zip(b_coefficients)
             .map(|pair| pair.0 + pair.1)
             .collect();
 
-        Polynomial::new(new_coefficients, 'x')
+        Polynomial {
+            coefficients: new_coefficients,
+            indeterminate: 'x',
+        }
     }
 
-    pub fn sub() {
-        unimplemented!()
+    pub fn sub(&self, other: Polynomial) -> Polynomial {
+        let negative_coefficients: Vec<f64> = other
+            .coefficients
+            .iter()
+            .map(|coeff| coeff * -1f64)
+            .collect();
+        let negative = Polynomial::new(negative_coefficients, 'x');
+
+        self.add(negative)
     }
 
     pub fn multiply(&self, other: Polynomial) -> Polynomial {
@@ -102,6 +125,8 @@ impl Polynomial {
                 continue;
             }
 
+            if *coeff == 0f64 { continue; }
+
             terms = format!("{} + {}{}^{}", terms, coeff, self.indeterminate, degree);
         }
 
@@ -121,10 +146,18 @@ impl Polynomial {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
-    fn test_strip_zeros() {
+    fn test_strip_from_end() {
+        assert_eq!(
+            strip_from_end(vec![1, 2, 0, 3, 0, 0, 0], 0),
+            vec![1, 2, 0, 3]
+        );
+    }
+    #[test]
+    fn test_strip_from_end_on_polynomial() {
         let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64, 0f64], 'x');
-        assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 3f64]);
+        assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 0f64, 3f64]);
     }
 
     #[test]
@@ -142,13 +175,13 @@ mod tests {
     #[test]
     fn test_degree() {
         let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
-        assert_eq!(polynomial.degree(), 2)
+        assert_eq!(polynomial.degree(), 3)
     }
 
     #[test]
     fn test_string_representation() {
         let polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
-        assert_eq!(polynomial.as_string(), String::from("f(x) = 1 + 2x + 3x^2"))
+        assert_eq!(polynomial.as_string(), String::from("f(x) = 1 + 2x + 3x^3"))
     }
 
     #[test]
@@ -158,7 +191,7 @@ mod tests {
 
         assert_eq!(
             a_polynomial.add(b_polynomial).coefficients,
-            vec![2f64, 4f64, 6f64]
+            vec![2f64, 4f64, 6f64, 4f64]
         )
     }
 
@@ -222,6 +255,25 @@ mod tests {
         let polynomial = Polynomial::new(vec![-1f64, 2f64, -3f64, 4f64], 'x');
 
         assert_eq!(polynomial.evaluate_at(-5f64), -586.0)
+    }
+
+    #[test]
+    fn test_subtract() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+
+        assert_eq!(a_polynomial.sub(b_polynomial).coefficients, vec![0f64])
+    }
+
+    #[test]
+    fn test_double_negative_subtract() {
+        let a_polynomial = Polynomial::new(vec![-1f64, -2f64, -3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![-3f64, -2f64, -1f64], 'x');
+
+        assert_eq!(
+            a_polynomial.sub(b_polynomial).coefficients,
+            vec![-4f64, -4f64, -4f64]
+        )
     }
 
 }
