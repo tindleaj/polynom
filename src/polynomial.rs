@@ -15,8 +15,11 @@ fn strip_from_end<T: PartialEq + Clone + Default>(list: Vec<T>, object: T) -> Ve
     new_list
 }
 
+/// A simple polynomial representation with `coefficients` and an `indeterminate`. 
 pub struct Polynomial {
+    /// Coefficients of Polynomial. The index of each coefficient indicates its degree, for example in `vec![1, 2]`, the first value is explicitly `1x^0`, the second is `2x^1`, etc.
     pub coefficients: Vec<f64>,
+    /// The `char` representation of the indeterminate, eg. _f(**x**) = 1 + 2x_
     pub indeterminate: char,
 }
 
@@ -33,6 +36,7 @@ impl fmt::Debug for Polynomial {
 }
 
 impl Polynomial {
+
     /// Returns a Polynomial from a vector of floats and an indeterminate
     /// # Example
     /// ```
@@ -83,6 +87,16 @@ impl Polynomial {
         }
     }
 
+    /// Adds the same-degree coefficients of `other: Polynomial` to the coefficients of `self`, and returns a new Polynomial with the summed coefficients.
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let a_polynomial = Polynomial::from_ints(vec![1, 2, 3], 'x');
+    /// let b_polynomial = Polynomial::from_ints(vec![1, 2, 3], 'x');
+    /// 
+    /// assert_eq!(a_polynomial.add(b_polynomial).coefficients, vec![2f64, 4f64, 6f64]);
+    /// ``` 
     pub fn add(&self, other: Polynomial) -> Polynomial {
         let mut a_coefficients = self.coefficients.clone();
         let mut b_coefficients = other.coefficients.clone();
@@ -101,7 +115,18 @@ impl Polynomial {
             .collect();
 
         Polynomial::new(new_coefficients, 'x')
-    }
+    }  
+
+    /// Adds the same-degree coefficients of `other: Polynomial` to the coefficients of `self`, and returns a new Polynomial with the summed coefficients.
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let a_polynomial = Polynomial::from_ints(vec![1, 2], 'x');
+    /// let b_polynomial = Polynomial::from_ints(vec![2, 4], 'x');
+    /// 
+    /// assert_eq!(a_polynomial.sub(b_polynomial).coefficients, vec![-1f64, -2f64]);
+    /// ```
 
     pub fn sub(&self, other: Polynomial) -> Polynomial {
         let negative_coefficients: Vec<f64> = other
@@ -114,6 +139,16 @@ impl Polynomial {
         self.add(negative)
     }
 
+    /// Multiplies the same-degree coefficients of `self` and `other`, and returns a Polynomial with the new coefficients.
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let a_polynomial = Polynomial::from_ints(vec![1, 2], 'x');
+    /// let b_polynomial = Polynomial::from_ints(vec![2, 4], 'x');
+    /// 
+    /// assert_eq!(a_polynomial.multiply(b_polynomial).coefficients, vec![2f64, 8f64, 8f64]);
+    /// ```
     pub fn multiply(&self, other: Polynomial) -> Polynomial {
         let mut new_coefficients: Vec<f64> =
             vec![0f64; self.coefficients.len() * other.coefficients.len()];
@@ -127,6 +162,14 @@ impl Polynomial {
         Polynomial::new(new_coefficients, 'x')
     }
 
+    /// Return the result of evaluating a Polynomial at value `determinate`
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+    /// assert_eq!(polynomial.evaluate_at(1.0), 6f64)
+    /// ```
     pub fn evaluate_at(&self, determinate: f64) -> f64 {
         let mut sum = 0f64;
         for (degree, coeff) in self.coefficients.iter().enumerate() {
@@ -167,6 +210,14 @@ impl Polynomial {
         format!("f({}) = {}", self.indeterminate, terms)
     }
 
+    /// Return an integer representation of the degree of the Polynomial
+    /// # Example
+    /// ```
+    /// use polynom::polynomial::Polynomial;
+    ///
+    /// let polynomial = Polynomial::new(vec![1f64, 2f64, 3f64], 'x');
+    /// assert_eq!(polynomial.degree(), 2)
+    /// ```
     pub fn degree(&self) -> isize {
         // Special case zero polynomial
         if self.coefficients == vec![0f64] {
