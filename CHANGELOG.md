@@ -11,4 +11,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This changelog
 
 ## [0.1.0] - 2019-08-16
-Initial working version, includes a Polynomial that you can `add`, `sub`, `multiply`, get `as_string`, and `evaluate_at`.
+### Added
+- Initial working version, includes a Polynomial that you can `add`, `sub`, `multiply`, get `as_string`, and `evaluate_at`.
