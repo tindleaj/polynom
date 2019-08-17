@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Method documentation with examples
+- `Polynomial::from_ints()` to allow for creating a Polynomial from a vector of integers
 - Repository, readme, and keyword metadata to `Cargo.toml`
 - More information to the `README.md`
 - This changelog
