@@ -1,4 +1,6 @@
 use std::fmt;
+use std::ops::Add;
+use std::ops::Sub;
 
 fn strip_from_end<T: PartialEq + Clone + Default>(list: Vec<T>, object: T) -> Vec<T> {
     let mut new_list = list.clone();
@@ -15,7 +17,7 @@ fn strip_from_end<T: PartialEq + Clone + Default>(list: Vec<T>, object: T) -> Ve
     new_list
 }
 
-/// A simple polynomial representation with `coefficients` and an `indeterminate`. 
+/// A simple polynomial representation with `coefficients` and an `indeterminate`.
 pub struct Polynomial {
     /// Coefficients of Polynomial. The index of each coefficient indicates its degree, for example in `vec![1, 2]`, the first value is explicitly `1x^0`, the second is `2x^1`, etc.
     pub coefficients: Vec<f64>,
@@ -35,8 +37,45 @@ impl fmt::Debug for Polynomial {
     }
 }
 
-impl Polynomial {
+impl Add for Polynomial {
+    type Output = Polynomial;
 
+    fn add(self, other: Polynomial) -> Self {
+        let mut a_coefficients = self.coefficients.clone();
+        let mut b_coefficients = other.coefficients.clone();
+
+        // Resize coeff vectors to the longer size
+        if a_coefficients.len() < b_coefficients.len() {
+            a_coefficients.resize(b_coefficients.len(), 0f64)
+        } else {
+            b_coefficients.resize(a_coefficients.len(), 0f64)
+        }
+
+        let new_coefficients: Vec<f64> = a_coefficients
+            .iter()
+            .zip(b_coefficients)
+            .map(|pair| pair.0 + pair.1)
+            .collect();
+
+        Polynomial::new(new_coefficients, 'x')
+    }
+}
+
+impl Sub for Polynomial {
+    type Output = Polynomial;
+    fn sub(self, other: Polynomial) -> Self {
+        let negative_coefficients: Vec<f64> = other
+            .coefficients
+            .iter()
+            .map(|coeff| coeff * -1f64)
+            .collect();
+        let negative = Polynomial::new(negative_coefficients, 'x');
+
+        self + negative
+    }
+}
+
+impl Polynomial {
     /// Returns a Polynomial from a vector of floats and an indeterminate
     /// # Example
     /// ```
@@ -94,49 +133,25 @@ impl Polynomial {
     ///
     /// let a_polynomial = Polynomial::from_ints(vec![1, 2, 3], 'x');
     /// let b_polynomial = Polynomial::from_ints(vec![1, 2, 3], 'x');
-    /// 
+    ///
     /// assert_eq!(a_polynomial.add(b_polynomial).coefficients, vec![2f64, 4f64, 6f64]);
-    /// ``` 
-    pub fn add(&self, other: Polynomial) -> Polynomial {
-        let mut a_coefficients = self.coefficients.clone();
-        let mut b_coefficients = other.coefficients.clone();
+    /// ```
+    pub fn add(self, other: Polynomial) -> Polynomial {
+        self + other
+    }
 
-        // Resize coeff vectors to the longer size
-        if a_coefficients.len() < b_coefficients.len() {
-            a_coefficients.resize(b_coefficients.len(), 0f64)
-        } else {
-            b_coefficients.resize(a_coefficients.len(), 0f64)
-        }
-
-        let new_coefficients: Vec<f64> = a_coefficients
-            .iter()
-            .zip(b_coefficients)
-            .map(|pair| pair.0 + pair.1)
-            .collect();
-
-        Polynomial::new(new_coefficients, 'x')
-    }  
-
-    /// Adds the same-degree coefficients of `other: Polynomial` to the coefficients of `self`, and returns a new Polynomial with the summed coefficients.
+    /// Subtracts the same-degree coefficients of `other: Polynomial` to the coefficients of `self`, and returns a new Polynomial with the summed coefficients.
     /// # Example
     /// ```
     /// use polynom::polynomial::Polynomial;
     ///
     /// let a_polynomial = Polynomial::from_ints(vec![1, 2], 'x');
     /// let b_polynomial = Polynomial::from_ints(vec![2, 4], 'x');
-    /// 
+    ///
     /// assert_eq!(a_polynomial.sub(b_polynomial).coefficients, vec![-1f64, -2f64]);
     /// ```
-
-    pub fn sub(&self, other: Polynomial) -> Polynomial {
-        let negative_coefficients: Vec<f64> = other
-            .coefficients
-            .iter()
-            .map(|coeff| coeff * -1f64)
-            .collect();
-        let negative = Polynomial::new(negative_coefficients, 'x');
-
-        self.add(negative)
+    pub fn sub(self, other: Polynomial) -> Polynomial {
+        self - other
     }
 
     /// Multiplies the same-degree coefficients of `self` and `other`, and returns a Polynomial with the new coefficients.
@@ -146,7 +161,7 @@ impl Polynomial {
     ///
     /// let a_polynomial = Polynomial::from_ints(vec![1, 2], 'x');
     /// let b_polynomial = Polynomial::from_ints(vec![2, 4], 'x');
-    /// 
+    ///
     /// assert_eq!(a_polynomial.multiply(b_polynomial).coefficients, vec![2f64, 8f64, 8f64]);
     /// ```
     pub fn multiply(&self, other: Polynomial) -> Polynomial {
@@ -378,4 +393,23 @@ mod tests {
         assert_eq!(polynomial.coefficients, vec![1f64, 2f64, 3f64]);
     }
 
+    #[test]
+    fn test_add_op() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64, 4f64], 'x');
+
+        let result = a_polynomial + b_polynomial;
+
+        assert_eq!(result.coefficients, vec![2f64, 4f64, 0f64, 6f64, 4f64])
+    }
+
+    #[test]
+    fn test_sub_op() {
+        let a_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64], 'x');
+        let b_polynomial = Polynomial::new(vec![1f64, 2f64, 0f64, 3f64, 4f64], 'x');
+
+        let result = a_polynomial - b_polynomial;
+
+        assert_eq!(result.coefficients, vec![0f64, 0f64, 0f64, 0f64, -4f64])
+    }
 }
