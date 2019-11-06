@@ -26,4 +26,4 @@ assert_eq!(polynomial.as_string(), String::from("f(x) = 1 + 2x + 3x^2")
 This was inspired by Ch.1, Section 4 of Jeremy Kun's [A Programmer's Introduction to Mathematics](https://pimbook.org). This library is a port of the [`polynomial.py`](https://github.com/pim-book/programmers-introduction-to-mathematics/blob/master/secret-sharing/polynomial.py) class Kun provides in the [GitHub repo](https://github.com/pim-book/programmers-introduction-to-mathematics/) that accompanies the book.
 
 ## Note
-This library is far from perfect, you probably shouldn't use it in production.
+This library is incomplete and definitely not optimal. you probably shouldn't use it in production.
